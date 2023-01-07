@@ -37,3 +37,6 @@ else:
     content = input('\nEnter the content of the video >  ')
 
 
+# Create the directory
+if os.path.exists('generated') == False:
+    os.mkdir('generated')
