@@ -46,4 +46,14 @@ if os.path.exists('generated') == False:
 
 # Generate speech for the video
 speech = gTTS(text=content, lang='en', tld='ca', slow=False)
-speech.save("generated/speech.mp3")    
+speech.save("generated/speech.mp3")
+
+gp = random.choice(["1", "2"])
+start_point = random.randint(1, 480)
+audio_clip = AudioFileClip("generated/speech.mp3")
+
+if (audio_clip.duration + 1.3 > 58):
+    print('\nSpeech too long!\n' + str(audio_clip.duration) + ' seconds\n' + str(audio_clip.duration + 1.3) + ' total')
+    exit()
+
+print('\n')
