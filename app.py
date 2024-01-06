@@ -41,3 +41,9 @@ else:
 
 if os.path.exists('generated') == False:
     os.mkdir('generated')
+
+
+
+# Generate speech for the video
+speech = gTTS(text=content, lang='en', tld='ca', slow=False)
+speech.save("generated/speech.mp3")    
