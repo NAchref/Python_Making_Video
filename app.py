@@ -57,3 +57,9 @@ if (audio_clip.duration + 1.3 > 58):
     exit()
 
 print('\n')
+
+
+### VIDEO EDITING ###
+# Trim a random part of minecraft gameplay and slap audio on it
+video_clip = VideoFileClip("gameplay/gameplay_" + gp + ".mp4").subclip(start_point, start_point + audio_clip.duration + 1.3)
+final_clip = video_clip.set_audio(audio_clip)
