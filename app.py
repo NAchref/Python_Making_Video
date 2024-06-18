@@ -1,56 +1,60 @@
-import requests
-from bs4 import BeautifulSoup
+import os
+import imageio
+from PIL import Image, ImageDraw, ImageFont
 
-# Function to search Google for a question and get the top answer
-def search_google_for_answer(question):
-    url = "https://www.google.com/search"
-    params = {
-        'q': question,
-        'hl': 'en',
-        'num': 1,
-        'ie': 'utf-8',
-        'oe': 'utf-8',
-    }
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-    response = requests.get(url, params=params, headers=headers)
-    response.raise_for_status()
+# Function to aggregate specific paragraphs related to Azure
+def aggregate_specific_info():
+    azure_info = [
+        "Microsoft Azure is a cloud computing platform and service created by Microsoft for building, testing, deploying, and managing applications and services through Microsoft-managed data centers.",
+        "Azure offers a wide range of services and solutions including computing, analytics, storage, and networking.",
+        "With Azure, organizations can achieve cost savings, scalability, and flexibility by leveraging its pay-as-you-go pricing model and global infrastructure.",
+        "Azure provides comprehensive security, compliance, and privacy features to protect data and applications.",
+        "Developers can use Azure to build, deploy, and manage applications using their preferred tools and frameworks."
+    ]
     
-    soup = BeautifulSoup(response.text, 'html.parser')
-    answer_div = soup.find('div', class_='BNeawe iBp4i AP7Wnd')
-    if answer_div:
-        return answer_div.text
-    return "No relevant answer found"
+    return azure_info
 
-# Function to get Stack Overflow questions
-def get_stackoverflow_questions(tag, num_questions=5):
-    url = "https://api.stackexchange.com/2.3/questions"
-    params = {
-        'order': 'desc',
-        'sort': 'activity',
-        'tagged': tag,
-        'site': 'stackoverflow',
-        'filter': 'default'
-    }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    questions = response.json()['items']
+# Function to create video using images and Azure information
+def create_video(images_folder='images', output_file='azure_video.mp4'):
+    azure_info = aggregate_specific_info()
     
-    top_questions = []
-    for question in questions[:num_questions]:
-        top_questions.append({
-            'title': question['title'],
-            'question_id': question['question_id']
-        })
+    # Gather images from folder
+    image_files = sorted([os.path.join(images_folder, f) for f in os.listdir(images_folder) if f.endswith('.jpg') or f.endswith('.png')])
+    num_images = len(image_files)
     
-    return top_questions
+    # Ensure there are enough images for the paragraphs
+    if num_images < len(azure_info):
+        raise ValueError("Not enough images in the folder to match Azure information paragraphs.")
+    
+    # Create frames with image and Azure information
+    frames = []
+    font = ImageFont.truetype("arial.ttf", 16)
+    for i in range(len(azure_info)):
+        image_path = image_files[i]
+        azure_text = azure_info[i]
+        
+        # Open image and resize if necessary
+        image = Image.open(image_path)
+        if image.size[0] > 800 or image.size[1] > 600:
+            image = image.resize((800, 600))
+        
+        # Add Azure information text overlay
+        draw = ImageDraw.Draw(image)
+        text_width, text_height = draw.textsize(azure_text, font=font)
+        text_x = (image.width - text_width) // 2
+        text_y = image.height - text_height - 20
+        draw.text((text_x, text_y), azure_text, font=font, fill=(255, 255, 255))
+        
+        # Convert image to RGB mode (required for imageio)
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Append frame to frames list
+        frames.append(np.array(image))
+    
+    # Save frames as a video using imageio
+    imageio.mimsave(output_file, frames, fps=1)
 
 if __name__ == "__main__":
-    tag = "azure-virtual-machine"
-    top_questions = get_stackoverflow_questions(tag)
-    
-    for i, question in enumerate(top_questions, 1):
-        print(f"\nQuestion {i}: {question['title']}")
-        google_answer = search_google_for_answer(question['title'])
-        print(f"Google's Answer: {google_answer}")
+    create_video()
+    print(f"Video created successfully as 'azure_video.mp4'")
