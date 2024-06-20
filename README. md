@@ -1,4 +1,4 @@
-#Azure FAQ Video Generator
+# Azure FAQ Video Generator
 
 This Python application uses Google to search for the most frequently asked questions related to the Azure portal and generates videos answering these questions. The app automates the process of finding popular queries and producing informative video content.
 
